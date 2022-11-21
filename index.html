@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Article Converter</title>
+</head>
+<body>
+  <h1>Article Converter</h1>
+  <div class="input-container">
+    <textarea 
+      class="input" 
+      id="input" 
+      cols="100" 
+      rows="20" 
+      placeholder="Paste article with custom markup here...">**Commanders&#13;&#10;In this article, I'll be reviewing the Brothers' War set (BRO), specifically looking at how useful the cards will be in Pauper Commander.&#13;&#10;While it's clear to everyone that they can pay for artifact spells, what some people didn't notice at first was that powerstones can also pay for activated abilities (like [[Wildheart Invoker]]), triggered abilities (like paying for targeting a creature with ward), and any additional costs that aren't part of casting a spell (such as if an opponent cast [[Fade Away]]).
+      </textarea>
+    <button class="btn" id="submit">Submit</button>
+  </div>
+  <textarea 
+    class="output" 
+    id="output" 
+    cols="100" 
+    rows="20"
+    readonly></textarea>
+
+  <script src="script.js"></script>
+</body>
+</html>
