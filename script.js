@@ -8,51 +8,64 @@ async function convertArticle() {
   // Clear output textarea
   output.value = ''
 
-  // Make array of sections split by newline
-  const inputSplit = input.value.trimEnd().split(/\r?\n/)
+  // New output array
+  const outputArray = []
 
+  // Turn input into array split by newline
+  const inputArray = input.value.trimEnd().split(/\r?\n/)
 
-  for(let i = 0; i < inputSplit.length; i++) {
+  // For each section in article
+  for(let i = 0; i < inputArray.length; i++) {
+    // Name current section
+    let text = inputArray[i]
+
     // Check if a section is a header or a paragraph
-    if(inputSplit[i].substring(0,2) === '**') {
-      convertHeader(inputSplit[i])
+    if(text.substring(0,2) === '**') {
+      // Remove markup, wrap with tags, and push
+      outputArray.push(wrap(text.substring(2), 'h2'))
     } else {
-      await convertParagraph(inputSplit[i])
+      // Convert cards with markup into links
+      text = await convertCards(text)
+
+      // Convert links
+      // text = convertLinks(text)
+
+      // Wrap with tags and push
+      outputArray.push(wrap(text, 'p'))
     }
   }
+  
+  // Put converted article into output textarea
+  for(let i = 0; i < outputArray.length; i++) {
+    output.value = output.value + outputArray[i] + '\n'
+  }
 }
 
-function convertHeader(h) {
-  // Remove markup
-  const headerText = h.substring(2)
-
-  // Add to output textarea
-  output.value = output.value + `<h2>${headerText}</h2>`
+function wrap(content, tag) {
+  return `<${tag}>${content}</${tag}>`
 }
 
-async function convertParagraph(p) {
+async function convertCards(text) {
+  // For each card with markup
+  while(text.search(/\[\[/) > -1) {
+    // Get card location in text
+    const start = text.search(/\[\[/)
+    const end = text.search(/\]\]/)
 
-  const cards = []
+    // Save card name with markup "[[Card Name]]"
+    const cardMarkup = text.substring(start, end+2)
 
-  while(p.search(/\[\[/) > -1) {
-    p = p.replace(/\[\[(.*?)\]\]/, card => {
-      const cardName = card.slice(2,-2)
-      cards.push(cardName)
-      return `${cardName}`
-    })
+    // Save card name without markup
+    const cardName = text.substring(start+2, end)
+
+    // Fetch the Scryfall URL for that cards image
+    const cardURL = await getCard(cardName)
+
+    // Replace the markup with a link to that card's image
+    text = text.replace(cardMarkup, `<a href=\"${cardURL}\" target=\"_blank\">${cardName}</a>`)
   }
-
-  for(let i = 0; i < cards.length; i++) {
-    const cardURL = await getCard(cards[i])
-    p = p.replace(cards[i], () => {
-      return `<a href=\"${cardURL}\" target=\"_blank\">${cards[i]}</a>`
-    })
-  }
-
-  // Repeat above process for [link text](URL) markup
-
-  // Add to output textarea
-  output.value = output.value + `<p>${p}</p>`
+  
+  return text
 }
 
 async function getCard(cardName) {
