@@ -4,60 +4,55 @@ const submit = document.getElementById('submit')
 
 submit.addEventListener('click', convertArticle)
 
-function convertArticle() {
+async function convertArticle() {
   // Clear output textarea
   output.value = ''
+
   // Make array of sections split by newline
   const inputSplit = input.value.trimEnd().split(/\r?\n/)
 
-  inputSplit.forEach(text => {
-    // Check if a section has markup to be a header
-    if(text.substring(0,2) === '**') {
-      convertHeader(text)
+
+  for(let i = 0; i < inputSplit.length; i++) {
+    // Check if a section is a header or a paragraph
+    if(inputSplit[i].substring(0,2) === '**') {
+      convertHeader(inputSplit[i])
     } else {
-      convertParagraph(text)
+      await convertParagraph(inputSplit[i])
     }
-  })
+  }
 }
 
 function convertHeader(h) {
   // Remove markup
   const headerText = h.substring(2)
-  // Wrap with h2 tags
-  const headerCode = `<h2>${headerText}</h2>`
+
   // Add to output textarea
-  output.value = output.value + headerCode
+  output.value = output.value + `<h2>${headerText}</h2>`
 }
 
 async function convertParagraph(p) {
+
   const cards = []
 
-  // Get all card names from [[card name]]'s
-  p = p.replace(/\[\[(.*?)\]\]/g, card => {
-    const cardName = card.slice(2,-2)
+  while(p.search(/\[\[/) > -1) {
+    p = p.replace(/\[\[(.*?)\]\]/, card => {
+      const cardName = card.slice(2,-2)
+      cards.push(cardName)
+      return `${cardName}`
+    })
+  }
 
-    cards.push(cardName)
-  
-    return `[[${cardName}]]`
-  })
-
-  // Get the scryfall image URL for each card and replace the [[card name]] with an link tag
   for(let i = 0; i < cards.length; i++) {
     const cardURL = await getCard(cards[i])
-    p = p.replace(/\[\[(.*?)\]\]/, () => {
+    p = p.replace(cards[i], () => {
       return `<a href=\"${cardURL}\" target=\"_blank\">${cards[i]}</a>`
     })
   }
 
-
   // Repeat above process for [link text](URL) markup
 
-
-
-  // Wrap converted paragraph in p tags
-  const paragraphCode = `<p>${p}</p>`
   // Add to output textarea
-  output.value = output.value + paragraphCode
+  output.value = output.value + `<p>${p}</p>`
 }
 
 async function getCard(cardName) {
