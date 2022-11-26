@@ -28,7 +28,7 @@ async function convertArticle() {
       text = await convertCards(text)
 
       // Convert links
-      // text = convertLinks(text)
+      text = convertLinks(text)
 
       // Wrap with tags and push
       outputArray.push(wrap(text, 'p'))
@@ -69,20 +69,33 @@ async function convertCards(text) {
 }
 
 function convertLinks(text) {
-  // For each link with markup
+  // For each link with markup "(link text)[link url]"
   while(text.search(/\)\[/) > -1) {
-    // Get card location in text
-    const start = text.search(/\[\[/)
-    const end = text.search(/\]\]/)
+    const markupMiddle = text.search(/\)\[/)
+    let markupStart
+    let markupEnd
 
-    // Save card name with markup "[[Card Name]]"
-    const cardMarkup = text.substring(start, end+2)
+    // Get start of markup
+    for(let i = markupMiddle; text[i] !== '('; i--) {
+      markupStart = i - 1
+    }
 
-    // Save card name without markup
-    const cardName = text.substring(start+2, end)
+    // Get end of markup
+    for(let i = markupMiddle; text[i] !== ']'; i++) {
+      markupEnd = i + 1
+    }
+    
+    // Get entire markup value
+    const entireMarkup = text.substring(markupStart, markupEnd+1)
 
-    // Replace the markup with a link to that card's image
-    text = text.replace(cardMarkup, `<a href=\"${cardURL}\" target=\"_blank\">${cardName}</a>`)
+    // Get link text value
+    const linkText = text.substring(markupStart+1, markupMiddle)
+    
+    // Get link url value
+    const url = text.substring(markupMiddle+2, markupEnd)
+
+    // Replace markup value with template literal for a link
+    text = text.replace(entireMarkup, `<a href="${url}" target="_blank">${linkText}</a>`)
   }
   
   return text
