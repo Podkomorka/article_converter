@@ -68,6 +68,26 @@ async function convertCards(text) {
   return text
 }
 
+function convertLinks(text) {
+  // For each link with markup
+  while(text.search(/\)\[/) > -1) {
+    // Get card location in text
+    const start = text.search(/\[\[/)
+    const end = text.search(/\]\]/)
+
+    // Save card name with markup "[[Card Name]]"
+    const cardMarkup = text.substring(start, end+2)
+
+    // Save card name without markup
+    const cardName = text.substring(start+2, end)
+
+    // Replace the markup with a link to that card's image
+    text = text.replace(cardMarkup, `<a href=\"${cardURL}\" target=\"_blank\">${cardName}</a>`)
+  }
+  
+  return text
+}
+
 async function getCard(cardName) {
   const urlCardName = cardName.replace(/\s+/g, '+')
   const url = `https://api.scryfall.com/cards/named?fuzzy=${urlCardName}`
