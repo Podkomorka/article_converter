@@ -20,7 +20,7 @@ async function convertArticle() {
     let text = inputArray[i]
 
     // Check if a section is a header or a paragraph
-    if(text.substring(0,2) === '**') {
+    if(text.substring(0,2) === '##') {
       // Remove markup, wrap with tags, and push
       outputArray.push(wrap(text.substring(2), 'h2'))
     } else {
@@ -41,6 +41,7 @@ async function convertArticle() {
   }
 }
 
+// Helper function to wrap content in an html tag
 function wrap(content, tag) {
   return `<${tag}>${content}</${tag}>`
 }
@@ -70,18 +71,18 @@ async function convertCards(text) {
 
 function convertLinks(text) {
   // For each link with markup "(link text)[link url]"
-  while(text.search(/\)\[/) > -1) {
-    const markupMiddle = text.search(/\)\[/)
+  while(text.search(/\]\(/) > -1) {
+    const markupMiddle = text.search(/\]\(/)
     let markupStart
     let markupEnd
 
     // Get start of markup
-    for(let i = markupMiddle; text[i] !== '('; i--) {
+    for(let i = markupMiddle; text[i] !== '['; i--) {
       markupStart = i - 1
     }
 
     // Get end of markup
-    for(let i = markupMiddle; text[i] !== ']'; i++) {
+    for(let i = markupMiddle; text[i] !== ')'; i++) {
       markupEnd = i + 1
     }
     
