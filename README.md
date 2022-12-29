@@ -1,4 +1,4 @@
-# Article-Converter
+# Article Converter
 
 I made this tool to help save time converting articles into HTML for the [PDH Home Base website](https://www.pdhhomebase.com/articles). This tool allows writers to make card image links simply by wrapping card names in brackets, saving them the hassle of finding hundreds of different URLs manually. The converter makes use of asynchronous functions that make fetch requests to the Scryfall API.
 
